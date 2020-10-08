@@ -48,7 +48,7 @@ $ docker run --rm -it --name vsftpd -p 20-22:20-22 -p 21100-21110:21100-21110 lh
 
 Connect to the FTP server from the host machine:
 ```bash
-$ ftp -p locahlost 21
+$ ftp -p localhost 21
 ```
 
 Connect to the FTP server from another container:
