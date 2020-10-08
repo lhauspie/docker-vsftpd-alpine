@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Define default values of Environment Variables
+FTP_USER=${FTP_USER:-user}
+FTP_PASS=${FTP_PASS:-pass}
+PASV_ENABLE=${PASV_ENABLE:-YES}
+PASV_ADDRESS=${PASV_ADDRESS:-}
+PASV_ADDRESS_INTERFACE=${PASV_ADDRESS_INTERFACE:-eth0}
+PASV_ADDR_RESOLVE=${PASV_ADDR_RESOLVE:-NO}
+PASV_MIN_PORT=${PASV_MIN_PORT:-21100}
+PASV_MAX_PORT=${PASV_MAX_PORT:-21110}
+FTP_MODE=${FTP_MODE:-ftp}
+
 # You can set PASV_ADDRESS_INTERFACE to the name of the interface you'd like to
 # bind to and this will look up the IP and set the proper PASV_ADDRESS value.
 if [ -z "$PASV_ADDRESS" ]; then
@@ -23,15 +34,32 @@ adduser -u 431 -D -G $FTP_USER -h /home/vsftpd/$FTP_USER -s /bin/false  $FTP_USE
 echo "$FTP_USER:$FTP_PASS" | /usr/sbin/chpasswd
 chown -R $FTP_USER:$FTP_USER /home/vsftpd/$FTP_USER
 
+# Building the configuration file
+VSFTPD_CONF=/etc/vsftpd/vsftpd.conf
+more /etc/vsftpd/vsftpd-base.conf >> $VSFTPD_CONF
 
-# Update the vsftpd.conf according to env variables
-sed -i "s/anonymous_enable=YES/anonymous_enable=NO/" /etc/vsftpd/vsftpd.conf
-sed -i "s/pasv_enable=.*/pasv_enable=$PASV_ENABLE/" /etc/vsftpd/vsftpd.conf
-sed -i "s/pasv_address=.*/pasv_address=$PASV_ADDRESS/" /etc/vsftpd/vsftpd.conf
-sed -i "s/pasv_addr_resolve=.*/pasv_addr_resolve=$PASV_ADDR_RESOLVE/" /etc/vsftpd/vsftpd.conf
-sed -i "s/pasv_max_port=.*/pasv_max_port=$PASV_MAX_PORT/" /etc/vsftpd/vsftpd.conf
-sed -i "s/pasv_min_port=.*/pasv_min_port=$PASV_MIN_PORT/" /etc/vsftpd/vsftpd.conf
+if [[ "$FTP_MODE" =~ ^(ftp|ftps|ftps_implicit|ftps_tls)$ ]]; then
+  echo "FTP mode is $FTP_MODE"
+  more /etc/vsftpd/vsftpd-${FTP_MODE}.conf >> $VSFTPD_CONF
+else
+  echo "$FTP_MODE is not a supported FTP mode"
+  echo "FTP_MODE env var must be ftp, ftps, ftps_implicit or ftps_tls"
+  echo "exiting"
+  exit 1
+fi
+
+# Update the vsftpd-ftp.conf according to env variables
+echo "Update the vsftpd.conf according to env variables"
+echo "" >> $VSFTPD_CONF
+echo "# the following config lines are added by the run-vsftpd.sh script for passive mode" >> $VSFTPD_CONF
+echo "anonymous_enable=NO" >> $VSFTPD_CONF
+echo "pasv_enable=$PASV_ENABLE" >> $VSFTPD_CONF
+echo "pasv_address=$PASV_ADDRESS" >> $VSFTPD_CONF
+echo "pasv_addr_resolve=$PASV_ADDR_RESOLVE" >> $VSFTPD_CONF
+echo "pasv_max_port=$PASV_MAX_PORT" >> $VSFTPD_CONF
+echo "pasv_min_port=$PASV_MIN_PORT" >> $VSFTPD_CONF
 
 
 # Run the vsftpd server
-/usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
+echo "Running vsftpd"
+/usr/sbin/vsftpd $VSFTPD_CONF
