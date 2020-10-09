@@ -15,14 +15,15 @@ This Docker image is inpired by 3 other Docker images to merge all their fonctio
 
 This Docker container provides a vsftpd server, with the following features:
 - Alpine 3.9.4 base image.
-- vsftpd 3.0
+- vsftpd 3.0.3
 - Passive mode (disableable by env variable)
 - Base the `pasv_address` on a network interface
+- FTPS Explicit (over ftp/ftpes protocol and port 21)
+- FTPS Implicit (over ftps protocol and port 990)
+- FTPS TLS (whith strong protocol/cypher)
 
 Comming soon:
-- FTPS
-- FTPS Implicit
-- FTPS TLS
+- SFTP (FTP over SSH on port 22)
 - Virtual users
 - Logging to STDOUT or file
 - Ability to plug local folder to container volume
@@ -43,7 +44,7 @@ $ make build
 
 Run the container:
 ```bash
-$ docker run --rm -it --name vsftpd -p 20-22:20-22 -p 21100-21110:21100-21110 lhauspie/vsftpd-alpine
+$ docker run --rm -it --name vsftpd -p 20-22:20-22 -p 21100-21110:21100-21110 -p 990:990 lhauspie/vsftpd-alpine
 ```
 
 Connect to the FTP server from the host machine:
@@ -76,10 +77,17 @@ Default value: `pass`
 Accepted values: Any string. Avoid whitespaces and special chars.
 
 
+### `FTP_MODE`
+Allow you to choose which ftp configuration you want to use.
+
+Default value: `ftp`
+Accepted values: < `ftp` | `ftps` | `ftps_implicit` | `ftps_tls` >
+
+
 ### `PASV_ENABLE`
 Allow you to enable/disable the passive mode of the FTP server.
 
-Default value: `YES`  
+Default value: `YES`
 Accepted values: < `NO` | `YES` >
 
 

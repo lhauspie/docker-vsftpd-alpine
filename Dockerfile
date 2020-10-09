@@ -11,21 +11,21 @@ RUN apk update \
 		&& apk upgrade \
 		&& apk --update --no-cache add \
 				bash \
+				openssl \
 				vsftpd 
 
-ENV FTP_USER=user \
-    FTP_PASS=pass \
-    PASV_ENABLE=YES \
-    PASV_ADDRESS= \
-		PASV_ADDRESS_INTERFACE=eth0 \
-		PASV_ADDR_RESOLVE=NO \
-    PASV_MIN_PORT=21100 \
-    PASV_MAX_PORT=21110
+RUN openssl req -x509 -nodes -days 7300 \
+            -newkey rsa:2048 -keyout /etc/vsftpd/vsftpd.pem -out /etc/vsftpd/vsftpd.pem \
+            -subj "/C=FR/O=My company/CN=example.org"
 
 RUN mkdir -p /home/vsftpd/
 RUN chown -R ftp:ftp /home/vsftpd/
 
-COPY vsftpd.conf /etc/vsftpd/vsftpd.conf
+COPY vsftpd-base.conf /etc/vsftpd/vsftpd-base.conf
+COPY vsftpd-ftp.conf /etc/vsftpd/vsftpd-ftp.conf
+COPY vsftpd-ftps.conf /etc/vsftpd/vsftpd-ftps.conf
+COPY vsftpd-ftps_implicit.conf /etc/vsftpd/vsftpd-ftps_implicit.conf
+COPY vsftpd-ftps_tls.conf /etc/vsftpd/vsftpd-ftps_tls.conf
 COPY run-vsftpd.sh /usr/sbin/
 RUN chmod +x /usr/sbin/run-vsftpd.sh
 
