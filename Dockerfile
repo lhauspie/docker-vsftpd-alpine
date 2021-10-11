@@ -2,7 +2,7 @@ FROM alpine:3.9.4
 
 MAINTAINER Logan HAUSPIE <logan.hauspie.pro@gmail.com>
 LABEL Description="vsftpd Docker image based on Alpine. Supports passive mode and virtual users." \
-	License="Apache License 2.0" \
+	License="GNU General Public License v3" \
 	Usage="docker run --rm -it --name vsftpd -p [HOST_CONNECTION_PORTS]:20-22 -p [HOST_FTP_PORTS]:21100-21110 lhauspie/vsftpd-alpine" \
 	Version="${VERSION}"
 
