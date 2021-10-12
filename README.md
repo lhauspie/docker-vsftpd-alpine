@@ -150,3 +150,10 @@ Don't forget to expose your ports with `docker -p` parameter.
 
 Default value: `21110`  
 Accepted values: Any valid port number
+
+
+### `LOG_STDOUT`
+Output vsftpd log through STDOUT, so that it can be accessed through the [container logs](https://docs.docker.com/reference/commandline/logs/).
+
+Default value: `NO`  
+Accepted values: < `NO` | `YES` >

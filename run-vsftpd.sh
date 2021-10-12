@@ -10,13 +10,14 @@ PASV_ADDR_RESOLVE=${PASV_ADDR_RESOLVE:-NO}
 PASV_MIN_PORT=${PASV_MIN_PORT:-21100}
 PASV_MAX_PORT=${PASV_MAX_PORT:-21110}
 FTP_MODE=${FTP_MODE:-ftp}
+LOG_STDOUT=${LOG_STDOUT:-NO}
 
 # You can set PASV_ADDRESS_INTERFACE to the name of the interface you'd like to
 # bind to and this will look up the IP and set the proper PASV_ADDRESS value.
 if [ -z "$PASV_ADDRESS" ]; then
   echo "PASV_ADDRESS env variable is not set"
   if [ -n "$PASV_ADDRESS_INTERFACE" ]; then
-	echo "attempt to guess the PASV_ADDRESS from PASV_ADDRESS_INTERFACE"
+    echo "attempt to guess the PASV_ADDRESS from PASV_ADDRESS_INTERFACE"
     PASV_ADDRESS=$(ip -o -4 addr list $PASV_ADDRESS_INTERFACE | head -n1 | awk '{print $4}' | cut -d/ -f1)
     if [ -z "$PASV_ADDRESS" ]; then
       echo "Could not find IP for interface '$PASV_ADDRESS_INTERFACE', exiting"
@@ -32,11 +33,11 @@ fi
 addgroup -g 433 -S $FTP_USER
 adduser -u 431 -D -G $FTP_USER -h /home/vsftpd/$FTP_USER -s /bin/false  $FTP_USER
 echo "$FTP_USER:$FTP_PASS" | /usr/sbin/chpasswd
-chown -R $FTP_USER:$FTP_USER /home/vsftpd/$FTP_USER
+chown -R $FTP_USER:$FTP_USER /home/vsftpd/
 
 # Building the configuration file
 VSFTPD_CONF=/etc/vsftpd/vsftpd.conf
-more /etc/vsftpd/vsftpd-base.conf >> $VSFTPD_CONF
+more /etc/vsftpd/vsftpd-base.conf > $VSFTPD_CONF
 
 if [[ "$FTP_MODE" =~ ^(ftp|ftps|ftps_implicit|ftps_tls)$ ]]; then
   echo "FTP mode is $FTP_MODE"
@@ -59,6 +60,39 @@ echo "pasv_addr_resolve=$PASV_ADDR_RESOLVE" >> $VSFTPD_CONF
 echo "pasv_max_port=$PASV_MAX_PORT" >> $VSFTPD_CONF
 echo "pasv_min_port=$PASV_MIN_PORT" >> $VSFTPD_CONF
 
+# Get log file path
+export LOG_FILE=`grep ^vsftpd_log_file $VSFTPD_CONF | cut -d= -f2`
+
+cat << EOB
+  ********************************************************
+  *                                                      *
+  *    Docker image: lhauspie/vsftd-alpine               *
+  *    https://github.com/lhauspie/docker-vsftpd-alpine  *
+  *                                                      *
+  ********************************************************
+
+  SERVER SETTINGS
+  ---------------
+  . FTP_USER: "${FTP_USER}"
+  . FTP_PASS: "${FTP_PASS}"
+  . PASV_ENABLE: "${PASV_ENABLE}"
+  . PASV_ADDRESS: "${PASV_ADDRESS}"
+  . PASV_ADDRESS_INTERFACE: "${PASV_ADDRESS_INTERFACE}"
+  . PASV_ADDR_RESOLVE: "${PASV_ADDR_RESOLVE}"
+  . PASV_MIN_PORT: "${PASV_MIN_PORT}"
+  . PASV_MAX_PORT: "${PASV_MAX_PORT}"
+  . FTP_MODE: "${FTP_MODE}"
+  . LOG_STDOUT: "${LOG_STDOUT}"
+  . LOG_FILE: "${LOG_FILE}"
+EOB
+
+if [[ "${LOG_STDOUT}" == "YES" ]]; then
+  touch ${LOG_FILE}
+  tail -f ${LOG_FILE} >> /dev/stdout &
+elif [[ "${LOG_STDOUT}" != "NO" ]]; then
+  echo "LOG_STDOUT available options are 'YES' or 'NO'"
+  exit 1
+fi
 
 # Run the vsftpd server
 echo "Running vsftpd"

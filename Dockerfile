@@ -19,6 +19,7 @@ RUN openssl req -x509 -nodes -days 7300 \
             -subj "/C=FR/O=My company/CN=example.org"
 
 RUN mkdir -p /home/vsftpd/
+RUN mkdir -p /var/log/vsftpd
 RUN chown -R ftp:ftp /home/vsftpd/
 
 COPY vsftpd-base.conf /etc/vsftpd/vsftpd-base.conf
@@ -29,6 +30,6 @@ COPY vsftpd-ftps_tls.conf /etc/vsftpd/vsftpd-ftps_tls.conf
 COPY run-vsftpd.sh /usr/sbin/
 RUN chmod +x /usr/sbin/run-vsftpd.sh
 
-EXPOSE 20-22 21100-21110
+EXPOSE 20-22 990 21100-21110
 
 CMD /usr/sbin/run-vsftpd.sh
