@@ -21,12 +21,12 @@ This Docker container provides a [vsftpd server](https://doc.ubuntu-fr.org/vsftp
 - FTPS Explicit (over ftp/ftpes protocol and port 21)
 - FTPS Implicit (over ftps protocol and port 990)
 - FTPS TLS (whith strong protocol/cypher)
+- Logging to STDOUT or file
+- Ability to plug local folder to container volume
 
 Comming soon:
 - SFTP (FTP over SSH on port 22)
 - Virtual users
-- Logging to STDOUT or file
-- Ability to plug local folder to container volume
 
 
 # How to build ?
@@ -59,6 +59,25 @@ $ yum install ftp
 $ ftp -p vsftpd 21
 ```
 
+If you want to make local files available in the remote folder of the ftp server, you can do as follows:
+```
+$ export FTP_USER=user
+
+$ ll
+-rw-r--r--@ 1 lhauspie  staff   3,3K 18 oct 18:34 docker-compose.yaml
+
+$ docker run --rm -d -v $PWD:/home/vsftpd/$FTP_USER -v FTP_USER=$FTP_USER --name vsftpd -p 20-22:20-22 -p 21100-21110:21100-21110 -p 990:990 lhauspie/vsftpd-alpine
+a454baca6b526faec2fa594ebd750deabf18c957d2cf408daefdcb8943cdbd2b
+
+$ ftp -p $FTP_USER@localhost 21
+Connected to localhost.
+Password: 
+230 Login successful.
+ftp> ls
+-rw-r--r--    1 431      433          3336 Oct 18 16:34 docker-compose.yaml
+```
+
+In addition, if you upload a file (with the command `send`) to the FTP server you will retrieve it in the local folder.
 
 ## Environment Variables
 
