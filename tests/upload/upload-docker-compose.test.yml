@@ -1,0 +1,25 @@
+version: '3.9'
+services:
+  vsftpd:
+    extends:
+      file: ../docker-compose.test.yml
+      service: vsftpd
+    volumes:
+      - ./volume-files:/home/vsftpd/test
+  upload-ftp-client:
+    build:
+      context: ./upload-docker-image
+      args:
+        - LAUNCH_SCRIPT_LOCAL_FILE=$LAUNCH_SCRIPT_LOCAL_FILE
+        - CENTOS_FTP_IMAGE_REPOSITORY=$CENTOS_FTP_IMAGE_REPOSITORY
+        - CENTOS_FTP_IMAGE_REPOSITORY_TAG=$CENTOS_FTP_IMAGE_REPOSITORY_TAG
+    container_name: test-upload-ftp-client
+    image: test/upload-ftp-client
+    restart: on-failure
+    links:
+      - vsftpd
+    depends_on:
+      - vsftpd
+    environment:
+      - FTP_USER=test
+      - FTP_PASS=pass

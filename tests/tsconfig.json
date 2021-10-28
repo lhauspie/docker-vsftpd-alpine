@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "declaration": false,
+    // "baseUrl": ".",
+    "rootDir": "./",
+    "outDir": "./dist",
+    "paths": {
+      "*": ["./node_modules/*"]
+    },
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "strictPropertyInitialization": false,
+    "noUnusedLocals": true,
+    "stripInternal": true,
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["es6", "dom"],
+    "strict": true,
+    "types": ["jest", "node"]
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["./dist", "./node_modules"]
+}
