@@ -11,6 +11,8 @@ PASV_MIN_PORT=${PASV_MIN_PORT:-21100}
 PASV_MAX_PORT=${PASV_MAX_PORT:-21110}
 FTP_MODE=${FTP_MODE:-ftp}
 LOG_STDOUT=${LOG_STDOUT:-NO}
+USER_ID=${USER_ID:-433}
+GROUP_ID=${GROUP_ID:-431}
 
 # You can set PASV_ADDRESS_INTERFACE to the name of the interface you'd like to
 # bind to and this will look up the IP and set the proper PASV_ADDRESS value.
@@ -30,8 +32,8 @@ else
 fi
 
 # Add the FTP_USER, change his password and declare him as the owner of his home folder and all subfolders
-addgroup -g 433 -S $FTP_USER
-adduser -u 431 -D -G $FTP_USER -h /home/vsftpd/$FTP_USER -s /bin/false  $FTP_USER
+addgroup -g $USER_ID -S $FTP_USER
+adduser -u $GROUP_ID -D -G $FTP_USER -h /home/vsftpd/$FTP_USER -s /bin/false  $FTP_USER
 echo "$FTP_USER:$FTP_PASS" | /usr/sbin/chpasswd
 chown -R $FTP_USER:$FTP_USER /home/vsftpd/
 
