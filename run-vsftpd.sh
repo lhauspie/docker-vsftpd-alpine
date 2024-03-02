@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Define default values of Environment Variables
+FTP_UID=${FTP_UID:-431}
+FTP_GID=${FTP_GID:-433}
 FTP_USER=${FTP_USER:-user}
 FTP_PASS=${FTP_PASS:-pass}
 PASV_ENABLE=${PASV_ENABLE:-YES}
@@ -30,8 +32,8 @@ else
 fi
 
 # Add the FTP_USER, change his password and declare him as the owner of his home folder and all subfolders
-addgroup -g 433 -S $FTP_USER
-adduser -u 431 -D -G $FTP_USER -h /home/vsftpd/$FTP_USER -s /bin/false  $FTP_USER
+addgroup -g $FTP_GID -S $FTP_USER
+adduser -u $FTP_UID -D -G $FTP_USER -h /home/vsftpd -s /bin/false  $FTP_USER
 echo "$FTP_USER:$FTP_PASS" | /usr/sbin/chpasswd
 chown -R $FTP_USER:$FTP_USER /home/vsftpd/
 
