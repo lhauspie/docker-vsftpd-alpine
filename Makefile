@@ -1,13 +1,13 @@
-VERSION ?= 1.0.0-SNAPSHOT
+VERSION ?= 1.0.0
 CONTAINER_NAME ?= vsftpd
 
 .PHONY: build
 build:
-	docker build . -t lhauspie/vsftpd-alpine -t lhauspie/vsftpd-alpine:${VERSION}
+	docker build . -t mfiscus/vsftpd-alpine:latest -t mfiscus/vsftpd-alpine:${VERSION}
 
 .PHONY: 
 push:
-	docker push lhauspie/vsftpd-alpine
+	docker push mfiscus/vsftpd-alpine
 
 
 .PHONY: run
